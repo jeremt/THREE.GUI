@@ -42,6 +42,7 @@ var _keyUp = {};
 var _isKeyPressed = false;
 var _isMousePressed = false;
 var _isMouseDown = false;
+var _isMouseUp = false;
 var _mouseX = 0;
 var _mouseY = 0;
 var _mouseButton = "none";
@@ -51,6 +52,7 @@ var _onKeyUp      = function (e) {_onKey(e, false)}
 
 var _onMouseUp    = function (e) {
   _isMousePressed = false;
+  _isMouseUp = true;
   _mouseButton = "none";
 
 }
@@ -231,6 +233,19 @@ THREE.Input.isMouseDown = function () {
       return false;
     _isMouseDown = true;
     return true;
+  }
+  return false;
+}
+
+/**
+ * Return true if the mouse has just been released.
+ */
+THREE.Input.isMouseUp = function () {
+  if (!THREE.Input.isMousePressed()) {
+    if (_isMouseUp) {
+      _isMouseUp = false;
+      return true;
+    }
   }
   return false;
 }

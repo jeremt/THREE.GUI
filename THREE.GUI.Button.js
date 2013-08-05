@@ -141,6 +141,8 @@ THREE.GUI.Button.prototype.focusStyle = function (props) {
  */
 THREE.GUI.Button.prototype.update = function (deltaTime) {
   if (THREE.Input.isMouseDown())
+    this.dispatchEvent({type: 'focus'});
+  if (THREE.Input.isMouseUp())
     this.dispatchEvent({type: 'click'});
 }
 

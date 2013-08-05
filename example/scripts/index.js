@@ -40,6 +40,10 @@ context.addEventListener("start", function () {
     fontWeight: "bold"
   });
 
+  this.button.addEventListener('focus', function () {
+    console.log('focused !');
+  });
+
   this.button.addEventListener('click', function () {
     console.log('clicked !');
   });

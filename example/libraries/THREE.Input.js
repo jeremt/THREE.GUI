@@ -43,8 +43,8 @@ var _isKeyPressed = false;
 var _isMousePressed = false;
 var _isMouseDown = false;
 var _isMouseUp = false;
-var _mouseX = 0;
-var _mouseY = 0;
+var _mouseX = Infinity;
+var _mouseY = Infinity;
 var _mouseButton = "none";
 
 var _onKeyDown    = function (e) {_onKey(e, true)}

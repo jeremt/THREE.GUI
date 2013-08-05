@@ -35,25 +35,31 @@ context.addEventListener("start", function () {
   // Create simple button.
 
   this.button = new THREE.GUI.Button("Play", {
-    receiveLight: true,
-    textSmooth: false,
     fontWeight: "bold"
   });
 
-  this.button.addEventListener('focus', function () {
-    console.log('focused !');
+  this.button.addEventListener('active', function () {
+    console.log('activated!');
   });
 
-  this.button.addEventListener('click', function () {
-    console.log('clicked !');
+  this.button.addEventListener('click', function (e) {
+    console.log('clicked on button ' + e.id + '!');
   });
+
+  this.button.addEventListener('hover', function () {
+    console.log('hover!');
+  })
+
+  this.button.addEventListener('unhover', function () {
+    console.log('unhovered!');
+  })
 
   this.scene.add(this.button);
 
 });
 
 context.addEventListener("frame", function (event) {
-  this.button.update(event.deltaTime);
+  this.button.update(event.deltaTime, this.camera);
 });
 
 context.start();

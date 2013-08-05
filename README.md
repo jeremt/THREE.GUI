@@ -6,7 +6,7 @@ Simple 3D GUI for threejs.
 THREE.GUI.Button
 ----------------
 
-Simple 3d button.
+`GUI.Button` is a 3D button object.
 
 ### Events
 
@@ -18,7 +18,7 @@ Simple 3d button.
 THREE.GUI.List
 --------------
 
-Simple list of gui objects.
+`GUI.List` generate a vertical list of gui objects automaticaly resized when you add new objects into.
 
 ### Events
 

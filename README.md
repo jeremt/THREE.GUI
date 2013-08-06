@@ -3,10 +3,21 @@ THREE.GUI
 
 Simple 3D GUI for threejs.
 
+TODO
+----
+
+- GUI.TextInput
+- GUI.CircularList
+- Transitions
+
 THREE.GUI.Button
 ----------------
 
 `GUI.Button` is a 3D button object.
+
+### TODO
+
+- Animations
 
 ### Events
 
@@ -15,8 +26,8 @@ THREE.GUI.Button
 - __unhover__ - triggered when the mouse unhovered the button.
 - __active__ - triggered when the button is activated.
 
-THREE.GUI.List
---------------
+THREE.GUI.VerticalList
+----------------------
 
 `GUI.List` generate a vertical list of gui objects automaticaly resized when you add new objects into.
 

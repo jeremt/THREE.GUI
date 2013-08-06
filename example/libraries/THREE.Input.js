@@ -130,6 +130,17 @@ THREE.Input.isKeyUp = function (keyDesc) {
 }
 
 /**
+ * Check if the given key is pressed according an interval.
+ *
+ * @param {String} keyDesc the description of the key.
+ * @param {Number} delay the delay between each check.
+ * @param {Number} delta the delta time for the current frame.
+ */
+THREE.Input.isKeyRepeat = function (keyDesc, delay, delta) {
+  //TODO
+}
+
+/**
  * Look at keyboard state to know if a key is pressed
  * of not (without args look at all keys)
  *

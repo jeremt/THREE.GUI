@@ -131,34 +131,45 @@ var _initializeStyles = function (self, props) {
  */
 var _generateText = function (self) {
   // TODO - Generate background image.
-  self.textMesh = new THREE.Mesh(
-    new THREE.TextGeometry(self.text, {
-      size: self._style.fontSize,
-      height: self._style.textDepth,
-      curveSegments: 4,
 
-      font: self._style.fontFamily,
-      weight: self._style.fontWeight,
-      style: self._style.fontStyle,
+  if (/[^ ]/g.test(self.text)) {
+    self.textMesh = new THREE.Mesh(
+      new THREE.TextGeometry(self.text, {
+        size: self._style.fontSize,
+        height: self._style.textDepth,
+        curveSegments: 4,
 
-      bevelThickness: 2,
-      bevelSize: 1.5,
-      bevelEnabled: self._style.textSmooth,
+        font: self._style.fontFamily,
+        weight: self._style.fontWeight,
+        style: self._style.fontStyle,
 
-      extrudeMaterial: 1
+        bevelThickness: 2,
+        bevelSize: 1.5,
+        bevelEnabled: self._style.textSmooth,
 
-    }),
-    new THREE.MeshFaceMaterial([
-      _createMaterial(self._style.receiveLight, {color: self._style.textColor}),
-      _createMaterial(self._style.receiveLight, {color: self._style.textDepthColor})
-    ])
-  );
+        extrudeMaterial: 1
+
+      }),
+      new THREE.MeshFaceMaterial([
+        _createMaterial(self._style.receiveLight, {
+          color: self._style.textColor
+        }),
+        _createMaterial(self._style.receiveLight, {
+          color: self._style.textDepthColor
+        })
+      ])
+    );
+  } else {
+    self.textMesh = null;
+  }
 }
 
 /**
  * Place the button text.
  */
 var _placeText = function (self) {
+  if (self.textMesh === null)
+    return ;
   self.textMesh.geometry.computeBoundingBox();
   self.textMesh.width  = self.textMesh.geometry.boundingBox.max.x
                        - self.textMesh.geometry.boundingBox.min.x;
@@ -219,8 +230,10 @@ var _setStyle = function (self, style, progress) {
     case 1:
       self.scale = style.scale;
       self.backgroundMesh.material.color.setHex(style.backgroundColor);
-      self.textMesh.material.materials[0].color.setHex(style.textColor);
-      self.textMesh.material.materials[1].color.setHex(style.textDepthColor);
+      if (self.textMesh) {
+        self.textMesh.material.materials[0].color.setHex(style.textColor);
+        self.textMesh.material.materials[1].color.setHex(style.textDepthColor);
+      }
       return;
     default:
       var color = new THREE.Color();
@@ -228,10 +241,12 @@ var _setStyle = function (self, style, progress) {
       self.scale = self.scale.clone().lerp(style.scale, progress);
       color.setHex(style.backgroundColor);
       self.backgroundMesh.material.color.lerp(color, progress);
-      color.setHex(style.textColor);
-      self.textMesh.material.materials[0].color.lerp(color, progress);
-      color.setHex(style.textDepthColor);
-      self.textMesh.material.materials[1].color.lerp(color, progress);
+      if (self.textMesh) {
+        color.setHex(style.textColor);
+        self.textMesh.material.materials[0].color.lerp(color, progress);
+        color.setHex(style.textDepthColor);
+        self.textMesh.material.materials[1].color.lerp(color, progress);
+      }
       break;
   } 
 }
@@ -257,6 +272,21 @@ var _updateStyle = function (self, style, event) {
       _setStyle(self, style, 1);
     }
   }
+}
+
+/**
+ * Regenerate button mesh, be careful about this function because
+ * it's gonna regenerate a new Mesh with updated data, and that could
+ * be very slow.
+ */
+THREE.GUI.Button.prototype.regenerate = function (style) {
+  if (this.textMesh) {
+    this.remove(this.textMesh);
+    this.textMesh = null;
+  }
+  _generateText(this);
+  _placeText(this);
+  _setStyle(this, style, 1);
 }
 
 /**
@@ -289,6 +319,15 @@ THREE.GUI.Button.prototype.focusStyle = function (props) {
 THREE.GUI.Button.prototype.selectStyle = function (props) {
   for (var key in props)
     this._selectStyle[key] = props[key];
+}
+
+/**
+ * Update the button style with the given style.
+ * @param {Object} the style to apply.
+ * @param {Object} the current frame event.
+ */
+THREE.GUI.Button.prototype._updateStyle = function (style, event) {
+  _updateStyle(this, style, event);
 }
 
 /**

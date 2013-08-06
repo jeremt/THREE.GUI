@@ -92,6 +92,32 @@ context.updateVerticalList = function (event) {
 }
 
 /**
+ * TextInput example.
+ */
+context.textInputExample = function () {
+  var scene = new THREE.Scene();
+  this.example = "TextInput";
+
+  this.input = new THREE.GUI.TextInput();
+
+  this.input.addEventListener("submit", function (event) {
+    console.log("SUBMIT: ", event.text);
+  });
+
+  this.input.addEventListener("change", function (event) {
+    console.log("CHANGE: ", event.text);
+  });
+
+  scene.add(this.input);
+
+  return scene;
+}
+
+context.updateTextInput = function (event) {
+  this.input.update(event);
+}
+
+/**
  * Common stuffs.
  */
 
@@ -128,7 +154,7 @@ context.addEventListener("start", function () {
   // set camera.
   THREE.GUI.camera = this.camera;
 
-  this.scene = this.verticalListExample();
+  this.scene = this.textInputExample();
   this.commonSettings();
 
 });
@@ -146,6 +172,8 @@ context.addEventListener("frame", function (event) {
     this.scene = this.buttonExample();
   else if (THREE.Input.isKeyDown("2"))
     this.scene = this.verticalListExample();
+  else if (THREE.Input.isKeyDown("3"))
+    this.scene = this.textInputExample();
   else
     return;
   this.commonSettings();

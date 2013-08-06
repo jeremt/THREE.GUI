@@ -15,7 +15,7 @@ var _style = {
 
   padding: 10,                        /** Padding inside the button. */
 
-  transition: 0.5,                    /** Animation transition. */
+  transition: 0.3,                    /** Animation transition. */
 
   scale: new THREE.Vector3(1, 1, 1),  /** Button scale value. */
 

@@ -12,9 +12,10 @@ THREE.GUI = {};
 var _camera = null;
 
 THREE.GUI.__defineSetter__("camera", function (camera) {
-  if (typeof camera !== "object")
+  if (camera instanceof THREE.PerspectiveCamera)
+    _camera = camera;
+  else
     throw new TypeError("THREE.GUI.camera shoud be a valid THREE.PerspectiveCamera.");
-  _camera = camera;
 })
 
 THREE.GUI.__defineGetter__("camera", function () {

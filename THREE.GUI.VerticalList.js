@@ -70,10 +70,9 @@ THREE.GUI.VerticalList.prototype.update = function (event) {
   // If has event listener sumbit, then update keyboard events.
 
   if (this._listeners["submit"] !== undefined) {
-    
-    if (THREE.Input.isKeyDown("upArrow"))
+    if (THREE.Input.isKeyRepeat("upArrow", 0.2, event.deltaTime))
       _goPrevious(this);
-    if (THREE.Input.isKeyDown("downArrow"))
+    if (THREE.Input.isKeyRepeat("downArrow", 0.2, event.deltaTime))
       _goNext(this);
     if (THREE.Input.isKeyDown("enter"))
       this.dispatchEvent({type: 'submit', choice: this._current});
@@ -88,11 +87,23 @@ THREE.GUI.VerticalList.prototype.update = function (event) {
   // If has event listener click, then update click events.
 
   if (this._listeners["click"] !== undefined) {
+
+    if (THREE.Input.getMouseButton() === 'left')
+      this._leftButtonClicked = true;
+    else if (THREE.Input.getMouseButton() !== 'none')
+      this._leftButtonClicked = false;
+
     for (var i = 0; i < this._list.length; ++i) {
-      if (this._list[i].hitMouse() && THREE.Input.isMouseUp())
+      if (
+        this._list[i].hitMouse() &&
+        THREE.Input.isMouseUp() &&
+        this._leftButtonClicked
+      ) {
         this.dispatchEvent({type: 'click', choice: i});
+      }
       this._list[i].update(event);
     }
+
   }
 
 }

@@ -76,7 +76,11 @@ context.verticalListExample = function () {
 
   this.list.addEventListener("submit", function (event) {
     console.log("Summit choice " + event.choice);
-  })
+  });
+
+  this.list.addEventListener("click", function (event) {
+    console.log("Click choice " + event.choice);
+  });
 
   scene.add(this.list);
 

@@ -14,6 +14,7 @@ var _style = {
 THREE.GUI.VerticalList = function (props) {
   this._list = [];
   this._current = 0;
+  this._needUpdate = true;
   this._style = Object.create(_style);
   this.style(props);
   THREE.EventDispatcher.call(this);
@@ -66,14 +67,39 @@ THREE.GUI.VerticalList.prototype.removeAt = function (index) {
  */
 THREE.GUI.VerticalList.prototype.update = function (event) {
 
-  if (THREE.Input.isKeyDown("upArrow"))
-    _goPrevious(this);
-  if (THREE.Input.isKeyDown("downArrow"))
-    _goNext(this);
-  if (THREE.Input.isKeyDown("enter"))
-    this.dispatchEvent({type: 'submit', choice: this._current});
+  // If has event listener sumbit, then update keyboard events.
+
+  if (this._listeners["submit"] !== undefined) {
+    
+    if (THREE.Input.isKeyDown("upArrow"))
+      _goPrevious(this);
+    if (THREE.Input.isKeyDown("downArrow"))
+      _goNext(this);
+    if (THREE.Input.isKeyDown("enter"))
+      this.dispatchEvent({type: 'submit', choice: this._current});
+
+    if (this._needUpdate) {
+      this._needUpdate = false;
+      _updateMove(this);
+    }
+
+  }
+
+  // If has event listener click, then update click events.
+
+  if (this._listeners["click"] !== undefined) {
+    for (var i = 0; i < this._list.length; ++i) {
+      if (this._list[i].hitMouse() && THREE.Input.isMouseUp())
+        this.dispatchEvent({type: 'click', choice: i});
+      this._list[i].update(event);
+    }
+  }
+
 }
 
+/**
+ * Compute vertical offset to translate for each element.
+ */
 var _verticalOffset = function (self, index) {
   var res = 0;
   for (var i = index; i < self._list.length; ++i)
@@ -81,14 +107,15 @@ var _verticalOffset = function (self, index) {
   return res;
 }
 
+/**
+ * Place all elements according list center.
+ */
 var _updatePositions = function (self) {
 
-  if (self._list.length === 1)
-    _updateMove(self);
   if (self._list.length < 2)
     return ;
 
-  // Compute offset
+  // Compute offset.
 
   var offset = self._style.margin; // remove bottom margin.
   for (var i = 0; i < self._list.length; ++i)
@@ -104,16 +131,22 @@ var _updatePositions = function (self) {
   }
 }
 
+/**
+ * Update style and event according current position in list.
+ */
 var _updateMove = function (self) {
   for (var i = 0; i < self._list.length; ++i) {
     if (i === self._current)
-      self._list[i].focus();
+      self._list[i].select();
     else
-      self._list[i].unfocus();
+      self._list[i].unselect();
   }
   self.dispatchEvent({type: 'change', choice: this._current});
 }
 
+/**
+ * Go to the previous element.
+ */
 var _goPrevious = function (self) {
   --self._current;
   if (self._current < 0)
@@ -121,6 +154,9 @@ var _goPrevious = function (self) {
   _updateMove(self);
 }
 
+/**
+ * Go to the next element.
+ */
 var _goNext = function (self) {
   ++self._current;
   if (self._current >= self._list.length)

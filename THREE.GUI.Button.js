@@ -4,43 +4,74 @@
 THREE     = THREE     || {};
 THREE.GUI = THREE.GUI || {};
 
+/**
+ * Default button style.
+ */
 var _style = {
 
-  width: 200,
-  height: 80,
-  depth: 40,
+  width: 200,                         /** Button's width. */
+  height: 80,                         /** Button's height. */
+  depth: 40,                          /** Button's depth. */
 
-  padding: 10,
+  padding: 10,                        /** Padding inside the button. */
 
-  scale: new THREE.Vector3(1, 1, 1),
+  transition: 0.5,                    /** Animation transition. */
 
-  backgroundImage: null,
-  backgroundColor: 0x222222,
+  scale: new THREE.Vector3(1, 1, 1),  /** Button scale value. */
 
-  textColor: 0xffffff,
-  textDepth: 5,
-  textSmooth: false,
-  textColor: 0xffffff,
-  textDepthColor: 0x555555,
-  textAlign: 'center',
+  backgroundImage: null,              /** Potential bg image. */
+  backgroundColor: 0x222222,          /** Bg color. */
 
-  receiveLight: true,
+  textColor: 0xffffff,                /** Text color. */
+  textDepthColor: 0x555555,           /** Text side color. */
+  textDepth: 5,                       /** Text depth. */
+  textSmooth: false,                  /** True for smooth text geometry. */
+  textAlign: 'center',                /** Text alignement. */
 
-  fontFamily: "droid sans",
-  fontWeight: "normal",
-  fontStyle: "normal",
-  fontSize: 40
+  receiveLight: true,                 /** True for PhongMaterial. */
+
+  fontFamily: "droid sans",           /** Font family. */
+  fontWeight: "normal",               /** Font weight. */
+  fontStyle: "normal",                /** Font style. */
+  fontSize: 40                        /** Font size. */
 
 };
 
+/**
+ * Be careful, the following properties are only take in account
+ * in default style:
+ *
+ *   - width
+ *   - height
+ *   - depth
+ *   - padding
+ *   - receiveLight
+ *   - fontFamily
+ *   - fontWeight
+ *   - fontStyle
+ *   - fontSize
+ *
+ */
+
+/**
+ * Default hovered button style.
+ */
 var _hoverStyle = {
   backgroundColor: 0x111111
 };
 
+/**
+ * Default focus button style.
+ */
 var _focusStyle = {
   backgroundColor: 0x111111,
   scale: new THREE.Vector3(0.95, 0.95, 0.8)
 };
+
+var _selectStyle = {
+  backgroundColor: 0x111111,
+  scale: new THREE.Vector3(1.1, 1.1, 1.1)
+}
 
 var _projector = new THREE.Projector();
 
@@ -52,6 +83,7 @@ THREE.GUI.Button = function (text, props) {
   THREE.Object3D.call(this);
   this.text = text;
   this._hovered = false;
+  this._transitionDelay = 0;
 
   _initializeStyles(this, props);
   _generateText(this);
@@ -78,9 +110,10 @@ var _createMaterial = function (receiveLight, props) {
  * Initalize styles for each button states.
  */
 var _initializeStyles = function (self, props) {
-  self._style      = Object.create(_style);
-  self._hoverStyle = Object.create(_hoverStyle);
-  self._focusStyle = Object.create(_focusStyle);
+  self._style       = Object.create(_style);
+  self._hoverStyle  = Object.create(_hoverStyle);
+  self._focusStyle  = Object.create(_focusStyle);
+  self._selectStyle = Object.create(_selectStyle);
   for (var key in props)
     self._style[key] = props[key];
   for (var key in self._style) {
@@ -88,6 +121,8 @@ var _initializeStyles = function (self, props) {
       self._hoverStyle[key] = self._style[key];
     if (self._focusStyle[key] === undefined)
       self._focusStyle[key] = self._style[key];
+    if (self._selectStyle[key] === undefined)
+      self._selectStyle[key] = self._style[key];
   }
 }
 
@@ -175,13 +210,53 @@ var _generateBackground = function (self) {
 }
 
 /**
+ * Set style values.
+ */
+var _setStyle = function (self, style, progress) {
+  switch (progress) {
+    case 0:
+      return;
+    case 1:
+      self.scale = style.scale;
+      self.backgroundMesh.material.color.setHex(style.backgroundColor);
+      self.textMesh.material.materials[0].color.setHex(style.textColor);
+      self.textMesh.material.materials[1].color.setHex(style.textDepthColor);
+      return;
+    default:
+      var color = new THREE.Color();
+      // self.scale = style.scale;
+      self.scale = self.scale.clone().lerp(style.scale, progress);
+      color.setHex(style.backgroundColor);
+      self.backgroundMesh.material.color.lerp(color, progress);
+      color.setHex(style.textColor);
+      self.textMesh.material.materials[0].color.lerp(color, progress);
+      color.setHex(style.textDepthColor);
+      self.textMesh.material.materials[1].color.lerp(color, progress);
+      break;
+  } 
+}
+
+/**
  * Update style.
  */
-var _updateStyle = function (self, style) {
-  self.scale = style.scale;
-  self.backgroundMesh.material.color.setHex(style.backgroundColor);
-  self.textMesh.material.materials[0].color.setHex(style.textColor);
-  self.textMesh.material.materials[1].color.setHex(style.textDepthColor);
+var _updateStyle = function (self, style, event) {
+  if (event === undefined) {
+    if (style.transition === 0)
+      _setStyle(self, style, 1);
+    else {
+      self._currentStyle = Object.create(style);
+      self._transitionDelay = style.transition;
+    }
+  } else {
+    if (self._transitionDelay > 0) {
+      self._transitionDelay -= event.deltaTime;
+      var progress = 1 - (self._transitionDelay / style.transition);
+      _setStyle(self, style, progress);
+    } else {
+      self._transitionDelay = 0;
+      _setStyle(self, style, 1);
+    }
+  }
 }
 
 /**
@@ -208,7 +283,19 @@ THREE.GUI.Button.prototype.focusStyle = function (props) {
     this._focusStyle[key] = props[key];
 }
 
-var _hasMouseCollision = function (obj) {
+/**
+ * Set button's style when is selected.
+ */
+THREE.GUI.Button.prototype.selectStyle = function (props) {
+  for (var key in props)
+    this._selectStyle[key] = props[key];
+}
+
+/**
+ * Check if this object hit the mouse (this method should
+ * be implemented to handle click on GUI objects).
+ */
+THREE.GUI.Button.prototype.hitMouse = function () {
   var vector = new THREE.Vector3(
      THREE.Input.getMouseX() / window.innerWidth  * 2 - 1,
     -THREE.Input.getMouseY() / window.innerHeight * 2 + 1,
@@ -220,25 +307,24 @@ var _hasMouseCollision = function (obj) {
     vector.sub(THREE.GUI.camera.position).normalize()
   );
   var objs = [];
-  for (var i in obj.children)
-    objs.push(obj.children[i]);
+  for (var i in this.children)
+    objs.push(this.children[i]);
   return raycaster.intersectObjects(objs).length > 0;
 }
 
 /**
- * Focus on this button (this method must be implemented
+ * Update button when is selected (this method must be implemented
  * to work with GUI.List).
  */
-THREE.GUI.Button.prototype.focus = function () {
-  _updateStyle(this, this._focusStyle);
-  this.dispatchEvent({type: 'focus', id: this.id});
+THREE.GUI.Button.prototype.select = function () {
+  _updateStyle(this, this._selectStyle);
 }
 
 /**
- * Lost focus on this button (this method must be implemented
- * to work with GUI.List).
+ * Update button when isnt selected anymore (this method must be
+ * implemented to work with GUI.List).
  */
-THREE.GUI.Button.prototype.unfocus = function () {
+THREE.GUI.Button.prototype.unselect = function () {
   _updateStyle(this, this._style);
 }
 
@@ -246,15 +332,18 @@ THREE.GUI.Button.prototype.unfocus = function () {
  * Call this method at each frame to update button behaviour.
  */
 THREE.GUI.Button.prototype.update = function (event) {
-  if (!_hasMouseCollision(this)) {
+  if (this._transitionDelay != 0)
+    _updateStyle(this, this._currentStyle, event);
+  if (!this.hitMouse()) {
     if (this._hovered) {
       this._hovered = false;
       this.dispatchEvent({type: 'unhover', id: this.id});
-      this.unfocus();
+      _updateStyle(this, this._style);
     }
   } else {
     if (THREE.Input.isMouseDown()) {
-      this.focus();
+      _updateStyle(this, this._focusStyle);
+      this.dispatchEvent({type: 'focus', id: this.id});
     } else if (THREE.Input.isMouseUp()) {
       _updateStyle(this, this._hoverStyle);
       this.dispatchEvent({type: 'click', id: this.id});

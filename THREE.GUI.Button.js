@@ -195,9 +195,9 @@ var _placeText = function (self) {
   if (/\(|\)|\||\[|\]/g.test(self.text))
     offset += self.textMesh.height / 5;
   else {
-    if (/l|t|i|d|f|h|k|b|[A-Z]|[0-9]/g.test(self.text))
+    if (/'|l|t|i|d|f|h|k|b|[A-Z]|[0-9]/g.test(self.text))
       offset += self.textMesh.height / 10;
-    if (/q|y|p|g|j/g.test(self.text))
+    if (/_|q|y|p|g|j/g.test(self.text))
       offset += self.textMesh.height / 10;
   }
 

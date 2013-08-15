@@ -1,0 +1,22 @@
+
+@import url("THREE.css");
+
+nav#top-menu {
+  font-family: monospace;
+  padding: 20px;
+  text-align: center;
+}
+
+nav#top-menu > span {
+  color: #888;
+  padding: 20px;
+  transition: .5s;
+}
+
+nav#top-menu > span:hover,
+nav#top-menu > span.selected {
+  cursor: pointer;
+  color: #444;
+  background: #ddd;
+  border-radius: 0 0 5px 5px;
+}

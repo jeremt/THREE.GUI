@@ -1,7 +1,7 @@
 THREE.GUI
 =========
 
-Simple 3D GUI for threejs.
+Simple 3D GUI for threejs, take a look at the [demo](http://jeremt.github.io/THREE.GUI/).
 
 TODO
 ----
@@ -24,7 +24,7 @@ THREE.GUI.Button
 
 ### Events
 
-- __click__ - triggered when the mouse click on the button.
+- __click__ - triggered when the mouse click on the button.
 - __hover__ - triggered when the mouse hovered the button.
 - __unhover__ - triggered when the mouse unhovered the button.
 - __focus__ - triggered when the button is focused.

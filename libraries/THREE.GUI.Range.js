@@ -55,9 +55,10 @@ THREE.GUI.Range = function (infos, props) {
   this.cursor.addEventListener("focus", function () {
     self.cursorFocused = true;
     self.mouseOffset = THREE.Input.getMouseX();
+    self.mouseDiff = 0;
   });
 
-  // TODO - place cursor according self._infos.value
+  _placeCursor(this);
 
 }
 
@@ -67,17 +68,41 @@ THREE.GUI.Range = function (infos, props) {
 THREE.GUI.Range.prototype =
   Object.create(THREE.Object3D.prototype);
 
-
+/**
+ * Update at each frame.
+ */
 THREE.GUI.Range.prototype.update = function (event) {
   this.cursor.update(event);
   if (!THREE.Input.isMousePressed())
     this.cursorFocused = false;
   if (this.cursorFocused) {
-    this.cursor.translateX(THREE.Input.getMouseX() - this.mouseOffset);
+    this.mouseDiff += THREE.Input.getMouseX() - this.mouseOffset;
+    // this.cursor.translateX(THREE.Input.getMouseX() - this.mouseOffset);
     _handleLimits(this);
     this.mouseOffset = THREE.Input.getMouseX();
-    // - TODO change event according value changing.
+    // TODO - move by step (step = 10 is too fast)
+    console.log(this.mouseDiff);
+    if (this.mouseDiff > 0 && this._infos.value < this._infos.to) {
+      this._infos.value += this._infos.step;
+      this.dispatchEvent({type: 'change', value: this._infos.value});
+      this.mouseDiff = 0;
+    }
+    if (this.mouseDiff < 0 && this._infos.value > this._infos.from) {
+      this._infos.value -= this._infos.step;
+      this.dispatchEvent({type: 'change', value: this._infos.value});
+      this.mouseDiff = 0;
+    }
+
+    _placeCursor(this);
   }
+}
+
+var _placeCursor = function (self) {
+  self.cursor.position.x = self.bar.position.x
+                         - self.bar.geometry.width / 2;
+  var step =  self.bar.geometry.width /
+             (self._infos.to - self._infos.from);
+  self.cursor.translateX(self._infos.value * step);
 }
 
 var _handleLimits = function (self) {

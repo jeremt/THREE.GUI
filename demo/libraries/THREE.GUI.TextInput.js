@@ -1,6 +1,9 @@
 
 ~function () {
 
+THREE     = THREE     || {};
+THREE.GUI = THREE.GUI || {};
+
 var _style = {
   backgroundColor: 0xcccccc,
   textColor: 0x444444,

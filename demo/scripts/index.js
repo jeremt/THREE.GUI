@@ -6,6 +6,8 @@ var context = new THREE.Context();
 // for debug
 window.context = context;
 
+var currentExample = "verticalList";
+
 /**
  * Button example.
  */
@@ -118,6 +120,38 @@ context.updateTextInput = function (event) {
 }
 
 /**
+ * Choices example.
+ */
+context.choicesExample = function () {
+  var scene = new THREE.Scene();
+  this.example = "Choices";
+  this.choices = new THREE.GUI.Choices([
+    "level one",
+    "level two",
+    "level three"
+  ]);
+
+  scene.add(this.choices);
+  return scene;
+}
+
+/**
+ * Range example.
+ */
+context.rangeExample = function () {
+  var scene = new THREE.Scene();
+  this.example = "Range";
+  this.range = new THREE.GUI.Range();
+
+  scene.add(this.range);
+  return scene;
+}
+
+context.updateRange = function (event) {
+  this.range.update(event);
+}
+
+/**
  * Common stuffs.
  */
 
@@ -143,10 +177,12 @@ context.commonSettings = function () {
 
   // Add controls.
 
-  this.controls = new THREE.OrbitControls(
-    this.camera,
-    this.renderer.domElement
-  );
+  if (this.example !== "Range") {
+    this.controls = new THREE.OrbitControls(
+      this.camera,
+      this.renderer.domElement
+    );
+  }
 }
 
 context.addEventListener("start", function () {
@@ -154,7 +190,7 @@ context.addEventListener("start", function () {
   // set camera.
   THREE.GUI.camera = this.camera;
 
-  this.scene = this.verticalListExample();
+  this.scene = this[currentExample + 'Example']();
   this.commonSettings();
 
 });
@@ -165,18 +201,6 @@ context.addEventListener("frame", function (event) {
 
   this["update" + this.example] &&
     this["update" + this.example](event);
-
-  // Switch examples.
-
-  // if (THREE.Input.isKeyDown("1"))
-  //   this.scene = this.buttonExample();
-  // else if (THREE.Input.isKeyDown("2"))
-  //   this.scene = this.verticalListExample();
-  // else if (THREE.Input.isKeyDown("3"))
-  //   this.scene = this.textInputExample();
-  // else
-  //   return;
-  // this.commonSettings();
 
 });
 
@@ -191,6 +215,8 @@ context.start();
   var elems = [];
   for (var i = 0; i < examples.length; ++i) {
     var el = document.querySelector("#" + examples[i]);
+    if (el.id === currentExample)
+      el.className = "selected";
     elems.push(el);
     el.addEventListener("click", function () {
       context.switchScene(this.innerHTML);
@@ -202,11 +228,9 @@ context.start();
 }([
   'verticalList',
   'button',
-  'textInput'
+  'textInput',
+  'choices',
+  'range'
 ]);
 
 }();
-
-// - RIB
-// - justificatif domicil
-// - check barre

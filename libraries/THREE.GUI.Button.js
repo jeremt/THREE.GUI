@@ -377,6 +377,7 @@ THREE.GUI.Button.prototype.update = function (event) {
     if (this._hovered) {
       this._hovered = false;
       this.dispatchEvent({type: 'unhover', id: this.id});
+      this.dispatchEvent({type: 'unfocus', id: this.id});
       _updateStyle(this, this._style);
     }
   } else {
@@ -386,6 +387,7 @@ THREE.GUI.Button.prototype.update = function (event) {
     } else if (THREE.Input.isMouseUp()) {
       _updateStyle(this, this._hoverStyle);
       this.dispatchEvent({type: 'click', id: this.id});
+      this.dispatchEvent({type: 'unfocus', id: this.id});
     } else if (!this._hovered) {
       this._hovered = true;
       _updateStyle(this, this._hoverStyle);

@@ -55,7 +55,7 @@ THREE.GUI.Range = function (infos, props) {
   this.cursor.addEventListener("focus", function () {
     self.cursorFocused = true;
     self.mouseOffset = THREE.Input.getMouseX();
-    self.mouseDiff = 0;
+    self.valueDiff = 0;
   });
 
   _placeCursor(this);
@@ -76,25 +76,28 @@ THREE.GUI.Range.prototype.update = function (event) {
   if (!THREE.Input.isMousePressed())
     this.cursorFocused = false;
   if (this.cursorFocused) {
-    this.mouseDiff += THREE.Input.getMouseX() - this.mouseOffset;
+    var offset = THREE.Input.getMouseX() - this.mouseOffset;
     // this.cursor.translateX(THREE.Input.getMouseX() - this.mouseOffset);
     _handleLimits(this);
     this.mouseOffset = THREE.Input.getMouseX();
-    // TODO - move by step (step = 10 is too fast)
-    console.log(this.mouseDiff);
-    if (this.mouseDiff > 0 && this._infos.value < this._infos.to) {
-      this._infos.value += this._infos.step;
-      this.dispatchEvent({type: 'change', value: this._infos.value});
-      this.mouseDiff = 0;
-    }
-    if (this.mouseDiff < 0 && this._infos.value > this._infos.from) {
-      this._infos.value -= this._infos.step;
-      this.dispatchEvent({type: 'change', value: this._infos.value});
-      this.mouseDiff = 0;
-    }
-
+    if (offset > 0 && this._infos.value < this._infos.to)
+      _updateValue(this, offset / this._infos.step);
+    if (offset < 0 && this._infos.value > this._infos.from)
+      _updateValue(this, offset / this._infos.step);
     _placeCursor(this);
   }
+}
+
+var _updateValue = function (self, value) {
+  self.valueDiff += value;
+  if (self.valueDiff > self._infos.step)
+    self._infos.value += self._infos.step;
+  else if (self.valueDiff < -self._infos.step)
+    self._infos.value -= self._infos.step;
+  else
+    return ;
+  self.dispatchEvent({type: 'change', value: self._infos.value});
+  self.valueDiff = 0;
 }
 
 var _placeCursor = function (self) {

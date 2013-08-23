@@ -151,7 +151,11 @@ var _updateText = function (self, isFirst) {
   self.textMeshes[self.previous].visible = false;
   self.textMeshes[self.current].visible = true;
   if (!isFirst)
-    self.dispatchEvent({type: 'change', value: self.current});
+    self.dispatchEvent({
+      type: 'change',
+      id: self.current,
+      value: self.choices[self.current]
+    });
 }
 
 }();

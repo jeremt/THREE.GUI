@@ -131,6 +131,10 @@ context.choicesExample = function () {
     "level three"
   ]);
 
+  this.choices.addEventListener('change', function (event) {
+    console.log('Choices change ' + event.id + ', ' + event.value);
+  });
+
   scene.add(this.choices);
   return scene;
 }
@@ -148,7 +152,7 @@ context.rangeExample = function () {
   this.range = new THREE.GUI.Range();
 
   this.range.addEventListener('change', function (event) {
-    console.log(event.value);
+    console.log("Range value is " + event.value);
   });
   scene.add(this.range);
   return scene;

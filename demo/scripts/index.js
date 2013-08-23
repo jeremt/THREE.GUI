@@ -131,8 +131,16 @@ context.choicesExample = function () {
     "level three"
   ]);
 
+  this.choices.addEventListener('change', function (event) {
+    console.log('Choices change ' + event.id + ', ' + event.value);
+  });
+
   scene.add(this.choices);
   return scene;
+}
+
+context.updateChoices = function (event) {
+  this.choices.update(event);
 }
 
 /**
@@ -143,6 +151,9 @@ context.rangeExample = function () {
   this.example = "Range";
   this.range = new THREE.GUI.Range();
 
+  this.range.addEventListener('change', function (event) {
+    console.log("Range value is " + event.value);
+  });
   scene.add(this.range);
   return scene;
 }
@@ -182,7 +193,8 @@ context.commonSettings = function () {
       this.camera,
       this.renderer.domElement
     );
-  }
+  } else
+    this.controls = null;
 }
 
 context.addEventListener("start", function () {
@@ -198,7 +210,6 @@ context.addEventListener("start", function () {
 context.addEventListener("frame", function (event) {
 
   // Update current example.
-
   this["update" + this.example] &&
     this["update" + this.example](event);
 
